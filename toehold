@@ -2,7 +2,7 @@
 
 sudo apt-get install git-core
 
-localdir="$HOME/sak"
+localdir="$HOME/sak_server"
 
 if [ -d "$localdir" ]; then
     rm -rf "$localdir"
