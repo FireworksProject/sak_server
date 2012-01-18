@@ -1,0 +1,18 @@
+#!/bin/bash
+BINDIR="$(cd `dirname "$0"` && pwd)"
+
+bin="/usr/local/bin"
+
+if ! [ -f "$bin/push_shared_projects" ]; then
+    sudo ln -s "$BINDIR/push_shared_projects" "$bin/push_shared_projects"
+else
+    echo "push_shared_projects already installed"
+fi
+
+if ! [ -f "$bin/pull_shared_projects" ]; then
+    sudo ln -s "$BINDIR/pull_shared_projects" "$bin/pull_shared_projects"
+else
+    echo "pull_shared_projects already installed"
+fi
+
+echo 'OK -> installed'

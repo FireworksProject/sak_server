@@ -1,0 +1,15 @@
+#!/bin/bash
+THISDIR="$(cd `dirname "$0"` && pwd)"
+ROOTDIR="$( dirname "$THISDIR" )"
+LIBDIR="$ROOTDIR/lib"
+
+source "$LIBDIR/utils.sh"
+
+logdir="$HOME/.saklogs"
+ensure_dir "$logdir"
+logfile="$logdir/push.log"
+
+src="$( pwd )"
+dest="fwpusers@saks.fireworksproject.com:~/shared_projects"
+
+"$THISDIR/rsync_append.sh" "$src/" "$dest/" "$logfile"

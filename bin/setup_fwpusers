@@ -1,7 +1,7 @@
 #!/bin/bash
 THISDIR="$(cd `dirname "$0"` && pwd)"
 ROOTDIR="$( dirname "$THISDIR" )"
-export LIBDIR="$ROOTDIR/lib"
+LIBDIR="$ROOTDIR/lib"
 
 source "$LIBDIR/utils.sh"
 
