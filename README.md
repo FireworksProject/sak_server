@@ -22,9 +22,9 @@ named `shared_projects` somewhere on your machine.
 
 Once you've installed the commands (see above), you can just `cd` into your `shared_projects` directory and run them.
 
-!README (gotcha) Don't ever run these commands outside of your
+__!README (gotcha)__ Don't ever run these commands outside of your
 `shared_projects` folder; you'll end up pushing and pulling all the files from
-whichever folder you happen to be in. (you can check this with the command
+whichever folder you happen to be in. (you can check full path of your current directory with the command
 `pwd`).
 
 Copyright and License
