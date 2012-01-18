@@ -1,7 +1,10 @@
 SAK System Administration and Development
 =========================================
 
-This repository contains scripts and admin tools used to deploy and run [our](http://www.fireworksproject.com) development and support server.  We call it our SAK server (Swiss Army Knife), and it is a "Jack of all trades". It is mainly deployed on Rackpace Cloud Servers.
+This repository contains scripts and admin tools used to deploy and run
+[our](http://www.fireworksproject.com) development and support server.  We call
+it our SAK server (Swiss Army Knife), and it is a "Jack of all trades". It is
+mainly deployed on Rackpace Cloud Servers.
 
 To install the executable (bin) scripts, run
 
@@ -10,7 +13,19 @@ To install the executable (bin) scripts, run
 
 That will install the `push_shared_projects` and `pull_shared_projects` commands on your local system.
 
-Before these commands will work, you'll need to make sure your `~/.ssh/config` file is setup properly to talk to the remoter server. See `examples/.ssh/config` for an example.
+### shared_projects pushing and pulling
+
+Before these commands will work, you'll need to make sure your `~/.ssh/config`
+file is setup properly to talk to the remoter server (See
+`examples/.ssh/config` for an example).  You'll also need to create a directory
+named `shared_projects` somewhere on your machine.
+
+Once you've installed the commands (see above), you can just `cd` into your `shared_projects` directory and run them.
+
+!README (gotcha) Don't ever run these commands outside of your
+`shared_projects` folder; you'll end up pushing and pulling all the files from
+whichever folder you happen to be in. (you can check this with the command
+`pwd`).
 
 Copyright and License
 ---------------------
