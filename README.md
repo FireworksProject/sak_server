@@ -15,17 +15,17 @@ That will install the `push_shared_projects` and `pull_shared_projects` commands
 
 ### shared_projects pushing and pulling
 
-Before these commands will work, you'll need to make sure your `~/.ssh/config`
-file is setup properly to talk to the remoter server (See
-`examples/.ssh/config` for an example).  You'll also need to create a directory
-named `shared_projects` somewhere on your machine.
+Before `push_shared_projects` and `pull_shared_projects` will work, you'll need
+to make sure your `~/.ssh/config` file is setup properly to talk to the remoter
+server (See `examples/.ssh/config` for an example).  You'll also need to create
+a directory named `shared_projects` somewhere on your machine.
 
 Once you've installed the commands (see above), you can just `cd` into your `shared_projects` directory and run them.
 
 __!README (gotcha)__ Don't ever run these commands outside of your
 `shared_projects` folder; you'll end up pushing and pulling all the files from
-whichever folder you happen to be in. (you can check full path of your current directory with the command
-`pwd`).
+whichever folder you happen to be in. (you can check full path of your current
+directory with the command `pwd`).
 
 Copyright and License
 ---------------------
