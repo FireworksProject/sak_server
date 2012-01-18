@@ -1,0 +1,21 @@
+#!/bin/bash
+THISDIR="$(cd `dirname "$0"` && pwd)"
+ROOTDIR="$( dirname "$THISDIR" )"
+export LIBDIR="$ROOTDIR/lib"
+
+source "$LIBDIR/utils.sh"
+
+# Create the shared projects folder
+mkdir "$HOME/shared_projects"
+
+# Create the shared dotfiles repository
+cd "$HOME"
+git clone git://github.com/FireworksProject/dotfiles.git \
+	|| fail "unable to clone dotfiles"
+cd "$HOME/dotfiles"
+git submodule init || fail "unable to init dotfile submodules"
+git submodule update || fail "unable to update dotfile submodules"
+
+# Deploy dotfiles
+"$HOME/dotfiles/bin/update-vim" || fail "unable to update vim dotfiles"
+"$HOME/dotfiles/bin/deploy" || fail "unable to deploy dotfiles"

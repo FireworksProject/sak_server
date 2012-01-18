@@ -65,3 +65,12 @@ Snapshot Image
 --------------
 
 Check to make sure the users can login (except the root user), then [create an image](http://www.rackspace.com/knowledge_center/index.php/Creating_a_Cloud_Server_from_a_Backup_Image)
+
+
+fwpusers
+--------
+
+Clone the `sak_server` repository onto the fwpusers account.
+
+    cd /home/fwpusers
+    git clone git://github.com/FireworksProject/sak_server.git
