@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get install git-core
+sudo apt-get install -y git-core
 
 localdir="$HOME/sak_server"
 
@@ -9,7 +9,9 @@ if [ -d "$localdir" ]; then
 fi
 
 cd $HOME
-git clone git@github.com:FireworksProject/sak_server.git
+git clone git://github.com/FireworksProject/sak_server.git
+
+sudo "$localdir/bin/bootstrap_ubuntu"
 
 PATH="$localdir/bin:$PATH"
 
