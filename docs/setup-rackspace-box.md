@@ -1,5 +1,5 @@
-Setup the Kristoffer (cayuga) Box on Rackspace
-==============================================
+Setup the SAK Server Box on Rackspace
+=====================================
 
 
 Ubuntu
@@ -74,3 +74,14 @@ Clone the `sak_server` repository onto the fwpusers account.
 
     cd /home/fwpusers
     git clone git://github.com/FireworksProject/sak_server.git
+
+
+Git Repositories
+----------------
+
+Login as the git user and then for each desired repository REPO do
+
+    mkdir ~/$REPO.git
+    cd ~/$REPO.git/
+    git init --bare
+
