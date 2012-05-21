@@ -18,7 +18,7 @@ file 'dist/monitor/default-conf.json' => ['monitor/default-conf.json', 'dist/mon
 end
 
 file 'dist/monitor/monitor.js' => ['monitor/monitor.coffee', 'dist/monitor'] do |task|
-    brew_javascript task.prerequisites.first, task.name
+    brew_javascript task.prerequisites.first, task.name, true
 end
 
 desc "Build SAKS"
@@ -61,8 +61,11 @@ task :clean do
     rm_rf 'installed'
 end
 
-def brew_javascript(source, target)
+def brew_javascript(source, target, node_exec)
     File.open(target, 'w') do |fd|
+        if node_exec
+            fd << "#!/usr/bin/env node\n\n"
+        end
         fd << %x[coffee -pb #{source}]
     end
 end

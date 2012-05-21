@@ -3,6 +3,7 @@
 "version": "0.1.0",
 "description": "Development environment for SAK Server",
     "dependencies": {
-        "treadmill": "2.0.1"
+        "treadmill": "2.0.1",
+        "proctools": "0.1.0"
     }
 }

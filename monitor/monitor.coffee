@@ -1,3 +1,5 @@
+process.title = 'saks-monitor'
+
 TEL = require 'telegram'
 
 CONFPATH = '/etc/saks-monitor'
