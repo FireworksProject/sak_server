@@ -1,0 +1,8 @@
+{
+"name": "saks.dev",
+"version": "0.1.0",
+"description": "Development environment for SAK Server",
+    "dependencies": {
+        "treadmill": "2.0.1"
+    }
+}

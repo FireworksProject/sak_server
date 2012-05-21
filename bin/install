@@ -1,0 +1,23 @@
+#!/bin/bash
+BIN_DIR="$(cd `dirname $0` && pwd)"
+ROOT_DIR="$( dirname "$BIN_DIR" )"
+DIST_DIR="$ROOT_DIR/dist"
+
+MONITOR_SRC="$DIST_DIR/monitor"
+MONITOR_TGT="/usr/local/lib/saks-monitor"
+MONITOR_EX="/usr/local/bin/saks-monitor"
+MONITOR_ETC="/etc/saks-monitor"
+
+sudo mkdir -p "$MONITOR_TGT"
+sudo cp -R "$MONITOR_SRC/node_modules" "$MONITOR_TGT"
+
+sudo cp "$MONITOR_SRC/controller.js" "$MONITOR_TGT/"
+sudo chmod 755 "$MONITOR_TGT/controller.js"
+
+if ! [ -f "$MONITOR_EX" ]; then
+    sudo ln -s "$MONITOR_TGT/controller.js" "$MONITOR_EX"
+fi
+
+if ! [ -d "$MONITOR_ETC" ]; then
+    sudo mkdir -p "$MONITOR_ETC"
+fi
