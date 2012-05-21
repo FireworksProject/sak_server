@@ -21,3 +21,5 @@ fi
 if ! [ -d "$MONITOR_ETC" ]; then
     sudo mkdir -p "$MONITOR_ETC"
 fi
+
+sudo cp "$MONITOR_SRC/default-conf.json" "$MONITOR_ETC/conf.json"

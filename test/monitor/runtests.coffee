@@ -3,6 +3,8 @@ PATH = require 'path'
 
 TRM = require 'treadmill'
 
+global.INDEX = PATH.join(__dirname, '../../dist/monitor/monitor')
+
 checkTestFile = (filename) ->
     return /^test/.test(filename)
 

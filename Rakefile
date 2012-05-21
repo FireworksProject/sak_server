@@ -1,6 +1,21 @@
+ROOT = File.dirname __FILE__
+
 task :default => :build
 
 directory 'dist/monitor'
+
+file 'dist/monitor/package.json' => ['monitor-package.json', 'dist/monitor'] do |task|
+    FileUtils.cp task.prerequisites.first, task.name
+    Dir.chdir 'dist/monitor'
+    sh 'npm install' do |ok, id|
+        ok or fail "npm could not install the monitor dependencies"
+    end
+    Dir.chdir ROOT
+end
+
+file 'dist/monitor/default-conf.json' => ['monitor/default-conf.json', 'dist/monitor'] do |task|
+    FileUtils.cp task.prerequisites.first, task.name
+end
 
 file 'dist/monitor/monitor.js' => ['monitor/monitor.coffee', 'dist/monitor'] do |task|
     brew_javascript task.prerequisites.first, task.name
@@ -8,7 +23,9 @@ end
 
 desc "Build SAKS"
 build_deps = [
-    'dist/monitor/monitor.js'
+    'dist/monitor/package.json',
+    'dist/monitor/monitor.js',
+    'dist/monitor/default-conf.json'
 ]
 task :build => build_deps do
     puts "Built SAKS"

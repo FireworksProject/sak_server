@@ -1,0 +1,8 @@
+{
+"name": "saks-monitor",
+"version": "0.1.0",
+"description": "Web monitory hosted by SAK Server",
+    "dependencies": {
+        "telegram": "0.1.1"
+    }
+}
