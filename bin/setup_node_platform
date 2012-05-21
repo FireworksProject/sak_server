@@ -1,0 +1,17 @@
+#!/bin/bash
+THISDIR="$(cd `dirname "$0"` && pwd)"
+ROOTDIR="$( dirname "$THISDIR" )"
+LIBDIR="$ROOTDIR/lib"
+
+PLATFORM="/srv/http/platform.x"
+
+source "$LIBDIR/utils.sh"
+
+"$THISDIR/install_node" || \
+    fail "Unable to install Node.js"
+
+sudo useradd --system --user-group nodeserver
+
+sudo mkdir --parents $PLATFORM
+sudo chown -R nodeserver:nodeserver $PLATFORM
+echo "Created $PLATFORM dir"
