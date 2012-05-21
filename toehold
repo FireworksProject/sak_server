@@ -9,9 +9,11 @@ if [ -d "$localdir" ]; then
 fi
 
 cd $HOME
-git clone git://github.com/FireworksProject/sak_server.git
+git clone git://github.com/FireworksProject/sak_server.git || \
+    echo "failed to download sak_server repository: try again"
 
-sudo "$localdir/bin/bootstrap_ubuntu"
+sudo "$localdir/bin/bootstrap_ubuntu" || \
+    echo "failed to install ubuntu packages: try again"
 
 PATH="$localdir/bin:$PATH"
 

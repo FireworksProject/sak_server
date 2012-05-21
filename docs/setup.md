@@ -6,7 +6,7 @@ System Setup
 Login as the fwpusers user and update the machine.
 
     ssh fwpusers@saks.fireworksproject.com
-    wget https://github.com/FireworksProject/web_server/raw/master/toehold
+    wget https://github.com/FireworksProject/sak_server/raw/master/toehold
     source toehold
 
 The toehold script will install git, clone a read-only copy of the `sak_server`
