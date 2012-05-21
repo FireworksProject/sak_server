@@ -2,6 +2,19 @@ PROC = require 'proctools'
 
 describe 'monitor', ->
     gProcTitle = /saks\-monitor/
+    gServerProc = null
+
+    beforeRun (done) ->
+        opts =
+            command: 'saks-monitor'
+            buffer: on
+
+        whenRunning = (proc) ->
+            gServerProc = proc
+            return done()
+
+        PROC.runCommand(opts).then(whenRunning).fail(done)
+        return
 
     afterRun (done) ->
         kill = (proc) ->
@@ -15,22 +28,15 @@ describe 'monitor', ->
     it 'should run on command', (done) ->
         @expectCount(4)
 
-        whenRunning = (proc) ->
-            expect(proc.stdoutBuffer).toBe("telegram server running at 127.0.0.1:7272\n")
-            expect(proc.stderrBuffer).toBe('')
+        expect(gServerProc.stdoutBuffer).toBe("telegram server running at 127.0.0.1:7272\n")
+        expect(gServerProc.stderrBuffer).toBe('')
 
-            promise = PROC.findProcess(gProcTitle).then (found) ->
-                foundProc = found[0]
-                expect(foundProc.pid).toBeA('number')
-                expect(proc.pid).toBe(foundProc.pid)
-                return done()
-            return promise
+        PROC.findProcess(gProcTitle).then (found) ->
+            foundProc = found[0]
+            expect(foundProc.pid).toBeA('number')
+            expect(gServerProc.pid).toBe(foundProc.pid)
+            return done()
 
-        opts =
-            command: 'saks-monitor'
-            buffer: on
-
-        PROC.runCommand(opts).then(whenRunning).fail(done)
         return
 
     return
