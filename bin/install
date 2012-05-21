@@ -9,13 +9,13 @@ MONITOR_EX="/usr/local/bin/saks-monitor"
 MONITOR_ETC="/etc/saks-monitor"
 
 sudo mkdir -p "$MONITOR_TGT"
-sudo cp -R "$MONITOR_SRC/node_modules" "$MONITOR_TGT"
+#sudo cp -R "$MONITOR_SRC/node_modules" "$MONITOR_TGT"
 
-sudo cp "$MONITOR_SRC/controller.js" "$MONITOR_TGT/"
-sudo chmod 755 "$MONITOR_TGT/controller.js"
+sudo cp "$MONITOR_SRC/monitor.js" "$MONITOR_TGT/"
+sudo chmod 755 "$MONITOR_TGT/monitor.js"
 
 if ! [ -f "$MONITOR_EX" ]; then
-    sudo ln -s "$MONITOR_TGT/controller.js" "$MONITOR_EX"
+    sudo ln -s "$MONITOR_TGT/monitor.js" "$MONITOR_EX"
 fi
 
 if ! [ -d "$MONITOR_ETC" ]; then

@@ -3,4 +3,4 @@ THIS_DIR="$(cd `dirname $0` && pwd)"
 BINDIR="$(dirname "$THIS_DIR")"
 ROOT_DIR="$(dirname "$BINDIR")"
 
-coffee "$ROOT_DIR/test/monitory/runtests.coffee"
+coffee "$ROOT_DIR/test/monitor/runtests.coffee"

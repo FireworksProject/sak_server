@@ -1,5 +1,11 @@
 task :default => :build
 
+directory 'dist/monitor'
+
+file 'dist/monitor/monitor.js' => ['monitor/monitor.coffee', 'dist/monitor'] do |task|
+    brew_javascript task.prerequisites.first, task.name
+end
+
 desc "Build SAKS"
 build_deps = [
     'dist/monitor/monitor.js'
