@@ -4,6 +4,7 @@
 "description": "Development environment for SAK Server",
     "dependencies": {
         "treadmill": "2.0.1",
-        "proctools": "0.1.0"
+        "proctools": "0.1.0",
+        "q": "0.8.2"
     }
 }

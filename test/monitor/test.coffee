@@ -1,3 +1,4 @@
+Q = require 'q'
 PROC = require 'proctools'
 
 describe 'executable', ->
@@ -147,9 +148,24 @@ describe 'mock functionality', ->
         return
 
 
-    it 'should send out failure emails', (done) ->
-        @expectCount(5)
+    it 'should send out failure email and SMS', (done) ->
+        @expectCount(11)
+        failureStack = "This is an error stack trace"
         failureMessage = "This is an error message"
+
+        SMS.Session = (spec) ->
+            sendCounter = 0
+
+            session = {}
+            session.send = (target, message) ->
+                sendCounter += 1
+                expect(target).toBe('5555555555')
+                expect(message).toBe(failureMessage)
+
+                deferred = Q.defer()
+                deferred.resolve({data: {resourceURL: "http://foo"}})
+                return deferred.promise
+            return session
 
         MAIL.createTransport = ->
             transport = {}
@@ -161,6 +177,62 @@ describe 'mock functionality', ->
                 expect(opts.from).toBe(gFromEmail)
                 expect(opts.to).toBe(gToEmail)
                 expect(opts.subject).toBe('FAILURE from webserver')
+                expect(opts.text).toBe(failureStack)
+                callback(null, {message: "sent"})
+                return
+
+            return transport
+
+        startMonitor (monitor) ->
+            smscount = 0
+            monitor.on 'log', (msg) ->
+                if /^Email\sMessage:/.test(msg)
+                    expect(msg).toBe("Email Message: sent")
+                if /^SMS\sMessage:/.test(msg)
+                    expect(msg).toBe("SMS Message: http://foo")
+                    smscount += 1
+                    if smscount is 2 then return done()
+                return
+
+            connection = TEL.connect 7272, 'localhost', ->
+                channel = connection.createChannel('failure')
+                process.nextTick ->
+                    msg = {stack: failureStack, message: failureMessage}
+                    channel.publish(JSON.stringify(msg))
+                    return
+                return
+            return
+        return
+
+
+    it 'should send heartbeat timeout email and SMS', (done) ->
+        @expectCount(11)
+        failureMessage = 'heartbeat timeout'
+
+        SMS.Session = (spec) ->
+            sendCounter = 0
+
+            session = {}
+            session.send = (target, message) ->
+                sendCounter += 1
+                expect(target).toBe('5555555555')
+                expect(message).toBe(failureMessage)
+
+                deferred = Q.defer()
+                deferred.resolve({data: {resourceURL: "http://foo"}})
+                return deferred.promise
+            return session
+
+        MAIL.createTransport = ->
+            transport = {}
+
+            transport.close = (callback) ->
+                return callback()
+
+            transport.sendMail = (opts, callback) ->
+                expect(opts.from).toBe(gFromEmail)
+                expect(opts.to).toBe(gToEmail)
+                expect(opts.subject).toBe('TIMEOUT from webserver')
                 expect(opts.text).toBe(failureMessage)
                 callback(null, {message: "sent"})
                 return
@@ -168,16 +240,22 @@ describe 'mock functionality', ->
             return transport
 
         startMonitor (monitor) ->
+            smscount = 0
+
             monitor.on 'log', (msg) ->
                 if /^Email\sMessage:/.test(msg)
                     expect(msg).toBe("Email Message: sent")
-                    return done()
+                if /^SMS\sMessage:/.test(msg)
+                    smscount += 1
+                    expect(msg).toBe("SMS Message: http://foo")
+                    if smscount is 2 then return done()
+                    return
                 return
 
             connection = TEL.connect 7272, 'localhost', ->
-                channel = connection.createChannel('failure')
+                channel = connection.createChannel('heartbeat')
                 process.nextTick ->
-                    channel.publish(JSON.stringify({stack: failureMessage}))
+                    channel.publish('ok')
                     return
                 return
             return

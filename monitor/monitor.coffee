@@ -48,13 +48,24 @@ exports.monitor = (args, aCallback) ->
         address: CONF.sms_address
     })
 
+    mClearHBTimer = do ->
+        timeout = null
+        clear = ->
+            if timeout isnt null then clearTimeout(timeout)
+            timeout = setTimeout(->
+                sendSMS('heartbeat timeout')
+                sendMail('TIMEOUT from webserver', 'heartbeat timeout')
+            , CONF.heartbeat_timeout * 1000)
+            return
+        return clear
+
 
     mTelegramServer.listen CONF.port, CONF.hostname, ->
         return aCallback(null, {telegramServer: mTelegramServer})
 
 
     mTelegramServer.subscribe 'heartbeat', (message) ->
-        console.log 'WARN', message
+        mClearHBTimer()
         return
 
 
@@ -66,6 +77,7 @@ exports.monitor = (args, aCallback) ->
 
     mTelegramServer.subscribe 'failure', (err) ->
         err = JSON.parse(err)
+        sendSMS(err.message)
         sendMail('FAILURE from webserver', err.stack)
         return
 
@@ -93,10 +105,11 @@ exports.monitor = (args, aCallback) ->
             self.emit 'log', "SMS Message: #{res.data.resourceURL}"
             return
 
-        mSMSSession.send(target, aBody).then(log).fail (err) ->
-            self.emit 'error', "Error sending SMS notification:"
-            self.emit 'error', (err.stack or err.toString())
-            return
+        for target in CONF.sms_list
+            mSMSSession.send(target, aBody).then(log).fail (err) ->
+                self.emit 'error', "Error sending SMS notification:"
+                self.emit 'error', (err.stack or err.toString())
+                return
         return
 
 
