@@ -28,7 +28,7 @@ describe 'executable', ->
 
         opts =
             command: 'saks-monitor'
-            args: ['emailaddress', 'emailpassword']
+            args: ['emailaddress', 'emailpassword', 'smsusername', 'smspassword']
             buffer: on
 
         PROC.runCommand(opts).then(whenRunning).fail(done)
@@ -41,30 +41,53 @@ describe 'executable', ->
 describe 'mock functionality', ->
     TEL = require '../../dist/monitor/node_modules/telegram'
     MAIL = require '../../dist/monitor/node_modules/nodemailer'
+    SMS = require '../../dist/monitor/node_modules/q-smsified'
     MON = require '../../dist/monitor/monitor'
 
     gMailCreateTransport = MAIL.createTransport
+    gSMSSession = SMS.Session
     gMonitor = null
     gMailUsername = 'firechief@fireworksproject.com'
     gMailPassword = 'foobar'
     gFromEmail = "SAKS Monitor <#{gMailUsername}>"
     gToEmail = 'foo@example.com, bar@example.com'
+    gSMSUser = 'firechief'
+    gSMSPass = 'foobar'
+    gSMSAddress = '5555555555'
 
     startMonitor = (callback) ->
         args =
             MAIL_USERNAME: gMailUsername
             MAIL_PASSWORD: gMailPassword
+            SMS_USERNAME: gSMSUser
+            SMS_PASSWORD: gSMSPass
         gMonitor = MON.monitor args, (err, monitor) ->
             return callback(gMonitor)
         return
 
     afterEach (done) ->
         MAIL.createTransport = gMailCreateTransport
+        SMS.Session = gSMSSession
+
         if gMonitor is null then return done()
         gMonitor.close ->
             gMonitor = null
             done()
             return
+        return
+
+
+    it 'should create an SMS session', (done) ->
+        @expectCount(3)
+
+        SMS.Session = (spec) ->
+            expect(spec.username).toBe(gSMSUser)
+            expect(spec.password).toBe(gSMSPass)
+            expect(spec.address).toBe(gSMSAddress)
+            return
+
+        startMonitor (monitor) ->
+            return done()
         return
 
 

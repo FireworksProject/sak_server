@@ -2,11 +2,14 @@ EventEmitter = require('events').EventEmitter
 
 TEL = require 'telegram'
 MAIL = require 'nodemailer'
+SMS = require 'q-smsified'
 
 CONFDIR = '/etc/saks-monitor'
 
 MAIL_USERNAME = process.argv[2]
 MAIL_PASSWORD = process.argv[3]
+SMS_USERNAME = process.argv[3]
+SMS_PASSWORD = process.argv[5]
 
 exports.monitor = (args, aCallback) ->
     self = new EventEmitter
@@ -20,6 +23,12 @@ exports.monitor = (args, aCallback) ->
     if not args.MAIL_PASSWORD
         throw new Error("missing mail password argument")
 
+    if not args.SMS_USERNAME
+        throw new Error("missing SMS username argument")
+
+    if not args.SMS_PASSWORD
+        throw new Error("missing SMS password argument")
+
     try
         CONF = require CONFPATH
     catch readErr
@@ -32,6 +41,12 @@ exports.monitor = (args, aCallback) ->
             service: 'Gmail'
             auth: {user: args.MAIL_USERNAME, pass: args.MAIL_PASSWORD}
         })
+
+    mSMSSession = new SMS.Session({
+        username: args.SMS_USERNAME
+        password: args.SMS_PASSWORD
+        address: CONF.sms_address
+    })
 
 
     mTelegramServer.listen CONF.port, CONF.hostname, ->
@@ -84,6 +99,8 @@ if module is require.main
     args =
         MAIL_USERNAME: MAIL_USERNAME
         MAIL_PASSWORD: MAIL_PASSWORD
+        SMS_USERNAME: SMS_USERNAME
+        SMS_PASSWORD: SMS_PASSWORD
 
     monitor = exports.monitor args, (err, info) ->
         {address, port} = info.telegramServer.address()
