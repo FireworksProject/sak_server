@@ -46,13 +46,14 @@ describe 'mock functionality', ->
     gMailCreateTransport = MAIL.createTransport
     gMonitor = null
     gMailUsername = 'firechief@fireworksproject.com'
+    gMailPassword = 'foobar'
     gFromEmail = "SAKS Monitor <#{gMailUsername}>"
     gToEmail = 'foo@example.com, bar@example.com'
 
     startMonitor = (callback) ->
         args =
             MAIL_USERNAME: gMailUsername
-            MAIL_PASSWORD: 'bar'
+            MAIL_PASSWORD: gMailPassword
         gMonitor = MON.monitor args, (err, monitor) ->
             return callback(gMonitor)
         return
@@ -60,8 +61,29 @@ describe 'mock functionality', ->
     afterEach (done) ->
         MAIL.createTransport = gMailCreateTransport
         if gMonitor is null then return done()
-        gMonitor.close(done)
-        gMonitor = null
+        gMonitor.close ->
+            gMonitor = null
+            done()
+            return
+        return
+
+
+    it 'should create a mail transport', (done) ->
+        @expectCount(4)
+
+        MAIL.createTransport = (type, opts) ->
+            expect(type).toBe('SMTP')
+            expect(opts.service).toBe('Gmail')
+            expect(opts.auth.user).toBe(gMailUsername)
+            expect(opts.auth.pass).toBe(gMailPassword)
+
+            transport = {}
+            transport.close = (callback) ->
+                return callback()
+            return transport
+
+        startMonitor (monitor) ->
+            return done()
         return
 
 
