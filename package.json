@@ -4,8 +4,6 @@
 "description": "Development environment for SAK Server",
     "dependencies": {
         "treadmill": "2.0.1",
-        "proctools": "0.1.0",
-        "telegram": "0.1.1",
-        "nodemailer": "0.3.20"
+        "proctools": "0.1.0"
     }
 }

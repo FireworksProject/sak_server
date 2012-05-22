@@ -4,6 +4,7 @@
 "description": "Web monitory hosted by SAK Server",
     "dependencies": {
         "telegram": "0.1.1",
-        "nodemailer": "0.3.20"
+        "nodemailer": "0.3.20",
+        "smsified": "https://github.com/FireworksProject/smsified/tarball/master"
     }
 }
