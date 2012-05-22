@@ -8,51 +8,60 @@ CONFPATH = '/etc/saks-monitor'
 MAIL_USERNAME = process.argv[2]
 MAIL_PASSWORD = process.argv[3]
 
-if not MAIL_USERNAME
-    throw new Error("missing mail username argument")
+exports.start = ->
+    mTelegramServer = null
+    mMailTransport = null
 
-if not MAIL_PASSWORD
-    throw new Error("missing mail password argument")
+    if not MAIL_USERNAME
+        throw new Error("missing mail username argument")
 
-CONF = require "#{CONFPATH}/conf.json"
+    if not MAIL_PASSWORD
+        throw new Error("missing mail password argument")
 
-gTelegramServer = TEL.createServer()
+    CONF = require "#{CONFPATH}/conf.json"
 
-gMailTransport = MAIL.createTransport('SMTP', {
-        service: 'Gmail'
-        auth: {user: MAIL_USERNAME, pass: MAIL_PASSWORD}
-    })
+    mTelegramServer = TEL.createServer()
 
-gTelegramServer.listen CONF.port, CONF.hostname, ->
-    addr = gTelegramServer.address()
-    console.log "telegram server running at #{addr.address}:#{addr.port}"
-    return
+    mMailTransport = MAIL.createTransport('SMTP', {
+            service: 'Gmail'
+            auth: {user: MAIL_USERNAME, pass: MAIL_PASSWORD}
+        })
 
-gTelegramServer.subscribe 'heartbeat', (message) ->
-    console.log 'WARN', message
-    return
-
-gTelegramServer.subscribe 'warning', (message) ->
-    console.log 'WARN', message
-    return
-
-gTelegramServer.subscribe 'failure', (message) ->
-    console.log 'FAIL', message
-    return
-
-sendMail = (aSubject, aBody) ->
-    opts =
-        from: "SAKS Monitor <#{MAIL_USERNAME}>"
-        to: CONF.mail_list.join(', ')
-        subject: aSubject
-        text: aBody
-
-    gMailTransport.sendMail opts, (err, res) ->
-        if err
-            console.error "Error sending email notification:"
-            console.error(err.stack or err.toString())
-            return
-
-        console.log "Email Message: #{res.message}"
+    mTelegramServer.listen CONF.port, CONF.hostname, ->
+        addr = mTelegramServer.address()
+        console.log "telegram server running at #{addr.address}:#{addr.port}"
         return
+
+    mTelegramServer.subscribe 'heartbeat', (message) ->
+        console.log 'WARN', message
+        return
+
+    mTelegramServer.subscribe 'warning', (message) ->
+        console.log 'WARN', message
+        return
+
+    mTelegramServer.subscribe 'failure', (message) ->
+        console.log 'FAIL', message
+        return
+
+    sendMail = (aSubject, aBody) ->
+        opts =
+            from: "SAKS Monitor <#{MAIL_USERNAME}>"
+            to: CONF.mail_list.join(', ')
+            subject: aSubject
+            text: aBody
+
+        mMailTransport.sendMail opts, (err, res) ->
+            if err
+                console.error "Error sending email notification:"
+                console.error(err.stack or err.toString())
+                return
+
+            console.log "Email Message: #{res.message}"
+            return
+        return
+
     return
+
+if module is require.main
+    exports.start()
