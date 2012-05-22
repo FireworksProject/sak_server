@@ -49,7 +49,7 @@ exports.monitor = (args, aCallback) ->
 
 
     mTelegramServer.subscribe 'failure', (message) ->
-        console.log 'FAIL', message
+        sendMail('FAILURE from webserver', message)
         return
 
 

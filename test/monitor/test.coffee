@@ -123,4 +123,41 @@ describe 'mock functionality', ->
             return
         return
 
+
+    it 'should send out error emails', (done) ->
+        @expectCount(5)
+        failureMessage = "This is an error message"
+
+        MAIL.createTransport = ->
+            transport = {}
+
+            transport.close = (callback) ->
+                return callback()
+
+            transport.sendMail = (opts, callback) ->
+                expect(opts.from).toBe(gFromEmail)
+                expect(opts.to).toBe(gToEmail)
+                expect(opts.subject).toBe('FAILURE from webserver')
+                expect(opts.text).toBe(failureMessage)
+                callback(null, {message: "sent"})
+                return
+
+            return transport
+
+        startMonitor (monitor) ->
+            monitor.on 'log', (msg) ->
+                if /^Email\sMessage:/.test(msg)
+                    expect(msg).toBe("Email Message: sent")
+                    return done()
+                return
+
+            connection = TEL.connect 7272, 'localhost', ->
+                channel = connection.createChannel('failure')
+                process.nextTick ->
+                    channel.publish(failureMessage)
+                    return
+                return
+            return
+        return
+
     return
