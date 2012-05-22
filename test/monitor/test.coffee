@@ -1,6 +1,6 @@
 PROC = require 'proctools'
 
-describe 'monitor', ->
+describe 'executable', ->
     gProcTitle = /saks\-monitor/
 
     afterRun (done) ->
@@ -33,6 +33,15 @@ describe 'monitor', ->
 
         PROC.runCommand(opts).then(whenRunning).fail(done)
 
+        return
+
+    return
+
+
+describe 'mock functionality', ->
+    TEL = require '../../monitor/monitor'
+
+    startMonitor = ->
         return
 
     return
