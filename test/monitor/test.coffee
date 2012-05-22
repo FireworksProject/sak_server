@@ -39,9 +39,60 @@ describe 'executable', ->
 
 
 describe 'mock functionality', ->
-    TEL = require '../../monitor/monitor'
+    TEL = require 'telegram'
+    MAIL = require 'nodemailer'
+    MON = require '../../monitor/monitor'
 
-    startMonitor = ->
+    gMailCreateTransport = MAIL.createTransport
+    gMonitor = null
+
+    startMonitor = (callback) ->
+        args =
+            MAIL_USERNAME: 'foo'
+            MAIL_PASSWORD: 'bar'
+        gMonitor = MON.monitor args, (err, monitor) ->
+            return callback(gMonitor)
+        return
+
+    afterEach (done) ->
+        MAIL.createTransport = gMailCreateTransport
+        if gMonitor is null then return done()
+        gMonitor.close(done)
+        gMonitor = null
+        return
+
+
+    it 'should send out warning emails', (done) ->
+        @expectCount(2)
+        warningMessage = "This is a warning message"
+
+        MAIL.createTransport = ->
+            transport = {}
+
+            transport.close = (callback) ->
+                return callback()
+
+            transport.sendMail = (opts, callback) ->
+                expect(opts.subject).toBe('WARNING from webserver')
+                callback(null, {message: "sent"})
+                return
+
+            return transport
+
+        startMonitor (monitor) ->
+            monitor.on 'log', (msg) ->
+                if /^Email\sMessage:/.test(msg)
+                    expect(msg).toBe("Email Message: sent")
+                    return done()
+                return
+
+            connection = TEL.connect 7272, 'localhost', ->
+                channel = connection.createChannel('warning')
+                process.nextTick ->
+                    channel.publish(warningMessage)
+                    return
+                return
+            return
         return
 
     return

@@ -1,36 +1,41 @@
+EventEmitter = require('events').EventEmitter
+
 TEL = require 'telegram'
 MAIL = require 'nodemailer'
 
-CONFPATH = '/etc/saks-monitor'
+CONFDIR = '/etc/saks-monitor'
 
 MAIL_USERNAME = process.argv[2]
 MAIL_PASSWORD = process.argv[3]
 
-exports.monitor = ->
-    self = {}
+exports.monitor = (args, aCallback) ->
+    self = new EventEmitter
+    CONFPATH = "#{CONFDIR}/conf.json"
     mTelegramServer = null
     mMailTransport = null
 
-    if not MAIL_USERNAME
+    if not args.MAIL_USERNAME
         throw new Error("missing mail username argument")
 
-    if not MAIL_PASSWORD
+    if not args.MAIL_PASSWORD
         throw new Error("missing mail password argument")
 
-    CONF = require "#{CONFPATH}/conf.json"
+    try
+        CONF = require CONFPATH
+    catch readErr
+        msg = "syntax error in config file #{CONFPATH} : #{readErr.message}"
+        throw new Error(msg)
 
     mTelegramServer = TEL.createServer()
 
     mMailTransport = MAIL.createTransport('SMTP', {
             service: 'Gmail'
-            auth: {user: MAIL_USERNAME, pass: MAIL_PASSWORD}
+            auth: {user: args.MAIL_USERNAME, pass: args.MAIL_PASSWORD}
         })
 
 
     mTelegramServer.listen CONF.port, CONF.hostname, ->
-        addr = mTelegramServer.address()
-        console.log "telegram server running at #{addr.address}:#{addr.port}"
-        return
+        return aCallback(null, {telegramServer: mTelegramServer})
 
 
     mTelegramServer.subscribe 'heartbeat', (message) ->
@@ -39,7 +44,7 @@ exports.monitor = ->
 
 
     mTelegramServer.subscribe 'warning', (message) ->
-        console.log 'WARN', message
+        sendMail('WARNING from webserver', message)
         return
 
 
@@ -57,11 +62,11 @@ exports.monitor = ->
 
         mMailTransport.sendMail opts, (err, res) ->
             if err
-                console.error "Error sending email notification:"
-                console.error(err.stack or err.toString())
+                self.emit 'error', "Error sending email notification:"
+                self.emit 'error', (err.stack or err.toString())
                 return
 
-            console.log "Email Message: #{res.message}"
+            self.emit 'log', "Email Message: #{res.message}"
             return
         return
 
@@ -76,4 +81,14 @@ exports.monitor = ->
 
 if module is require.main
     process.title = 'saks-monitor'
-    exports.monitor()
+    args =
+        MAIL_USERNAME: MAIL_USERNAME
+        MAIL_PASSWORD: MAIL_PASSWORD
+
+    monitor = exports.monitor args, (err, info) ->
+        {address, port} = info.telegramServer.address()
+        console.log "telegram server running at #{address}:#{port}"
+        return
+
+    monitor.on 'error', (err) -> console.error err
+    monitor.on 'log', (msg) -> console.log msg

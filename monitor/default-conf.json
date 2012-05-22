@@ -1,4 +1,5 @@
 {
     "hostname": "localhost",
-    "port": 7272
+    "port": 7272,
+    "mail_list": ["foo@example.com", "bar@example.com"]
 }
