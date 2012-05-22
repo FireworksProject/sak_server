@@ -140,7 +140,7 @@ describe 'mock functionality', ->
             connection = TEL.connect 7272, 'localhost', ->
                 channel = connection.createChannel('warning')
                 process.nextTick ->
-                    channel.publish(warningMessage)
+                    channel.publish(JSON.stringify({stack: warningMessage}))
                     return
                 return
             return
@@ -177,7 +177,7 @@ describe 'mock functionality', ->
             connection = TEL.connect 7272, 'localhost', ->
                 channel = connection.createChannel('failure')
                 process.nextTick ->
-                    channel.publish(failureMessage)
+                    channel.publish(JSON.stringify({stack: failureMessage}))
                     return
                 return
             return

@@ -58,13 +58,15 @@ exports.monitor = (args, aCallback) ->
         return
 
 
-    mTelegramServer.subscribe 'warning', (message) ->
-        sendMail('WARNING from webserver', message)
+    mTelegramServer.subscribe 'warning', (err) ->
+        err = JSON.parse(err)
+        sendMail('WARNING from webserver', err.stack)
         return
 
 
-    mTelegramServer.subscribe 'failure', (message) ->
-        sendMail('FAILURE from webserver', message)
+    mTelegramServer.subscribe 'failure', (err) ->
+        err = JSON.parse(err)
+        sendMail('FAILURE from webserver', err.stack)
         return
 
 
@@ -82,6 +84,18 @@ exports.monitor = (args, aCallback) ->
                 return
 
             self.emit 'log', "Email Message: #{res.message}"
+            return
+        return
+
+
+    sendSMS = (aBody) ->
+        log = (res) ->
+            self.emit 'log', "SMS Message: #{res.data.resourceURL}"
+            return
+
+        mSMSSession.send(target, aBody).then(log).fail (err) ->
+            self.emit 'error', "Error sending SMS notification:"
+            self.emit 'error', (err.stack or err.toString())
             return
         return
 
