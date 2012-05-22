@@ -45,10 +45,13 @@ describe 'mock functionality', ->
 
     gMailCreateTransport = MAIL.createTransport
     gMonitor = null
+    gMailUsername = 'firechief@fireworksproject.com'
+    gFromEmail = "SAKS Monitor <#{gMailUsername}>"
+    gToEmail = 'foo@example.com, bar@example.com'
 
     startMonitor = (callback) ->
         args =
-            MAIL_USERNAME: 'foo'
+            MAIL_USERNAME: gMailUsername
             MAIL_PASSWORD: 'bar'
         gMonitor = MON.monitor args, (err, monitor) ->
             return callback(gMonitor)
@@ -63,7 +66,7 @@ describe 'mock functionality', ->
 
 
     it 'should send out warning emails', (done) ->
-        @expectCount(2)
+        @expectCount(5)
         warningMessage = "This is a warning message"
 
         MAIL.createTransport = ->
@@ -73,7 +76,10 @@ describe 'mock functionality', ->
                 return callback()
 
             transport.sendMail = (opts, callback) ->
+                expect(opts.from).toBe(gFromEmail)
+                expect(opts.to).toBe(gToEmail)
                 expect(opts.subject).toBe('WARNING from webserver')
+                expect(opts.text).toBe(warningMessage)
                 callback(null, {message: "sent"})
                 return
 

@@ -55,7 +55,7 @@ exports.monitor = (args, aCallback) ->
 
     sendMail = (aSubject, aBody) ->
         opts =
-            from: "SAKS Monitor <#{MAIL_USERNAME}>"
+            from: "SAKS Monitor <#{args.MAIL_USERNAME}>"
             to: CONF.mail_list.join(', ')
             subject: aSubject
             text: aBody
