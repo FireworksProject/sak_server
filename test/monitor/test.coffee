@@ -39,9 +39,9 @@ describe 'executable', ->
 
 
 describe 'mock functionality', ->
-    TEL = require 'telegram'
-    MAIL = require 'nodemailer'
-    MON = require '../../monitor/monitor'
+    TEL = require '../../dist/monitor/node_modules/telegram'
+    MAIL = require '../../dist/monitor/node_modules/nodemailer'
+    MON = require '../../dist/monitor/monitor'
 
     gMailCreateTransport = MAIL.createTransport
     gMonitor = null
@@ -124,7 +124,7 @@ describe 'mock functionality', ->
         return
 
 
-    it 'should send out error emails', (done) ->
+    it 'should send out failure emails', (done) ->
         @expectCount(5)
         failureMessage = "This is an error message"
 
