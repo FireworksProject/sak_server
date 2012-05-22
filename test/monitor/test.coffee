@@ -7,6 +7,7 @@ describe 'monitor', ->
     beforeRun (done) ->
         opts =
             command: 'saks-monitor'
+            args: ['emailaddress', 'emailpassword']
             buffer: on
 
         whenRunning = (proc) ->
