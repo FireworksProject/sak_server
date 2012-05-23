@@ -11,40 +11,25 @@ MAIL_PASSWORD = process.argv[3]
 SMS_USERNAME = process.argv[3]
 SMS_PASSWORD = process.argv[5]
 
-exports.monitor = (args, aCallback) ->
+exports.monitor = (aArgs, aCallback) ->
     self = new EventEmitter
-    CONFPATH = "#{CONFDIR}/conf.json"
     mTelegramServer = null
     mMailTransport = null
 
-    if not args.MAIL_USERNAME
-        throw new Error("missing mail username argument")
-
-    if not args.MAIL_PASSWORD
-        throw new Error("missing mail password argument")
-
-    if not args.SMS_USERNAME
-        throw new Error("missing SMS username argument")
-
-    if not args.SMS_PASSWORD
-        throw new Error("missing SMS password argument")
-
-    try
-        CONF = require CONFPATH
-    catch readErr
-        msg = "syntax error in config file #{CONFPATH} : #{readErr.message}"
-        throw new Error(msg)
+    {args, conf} = sanityCheck(aArgs, "#{CONFDIR}/conf.json")
+    CONF = conf
+    ARGS = args
 
     mTelegramServer = TEL.createServer()
 
     mMailTransport = MAIL.createTransport('SMTP', {
             service: 'Gmail'
-            auth: {user: args.MAIL_USERNAME, pass: args.MAIL_PASSWORD}
+            auth: {user: ARGS.MAIL_USERNAME, pass: ARGS.MAIL_PASSWORD}
         })
 
     mSMSSession = new SMS.Session({
-        username: args.SMS_USERNAME
-        password: args.SMS_PASSWORD
+        username: ARGS.SMS_USERNAME
+        password: ARGS.SMS_PASSWORD
         address: CONF.sms_address
     })
 
@@ -84,7 +69,7 @@ exports.monitor = (args, aCallback) ->
 
     sendMail = (aSubject, aBody) ->
         opts =
-            from: "SAKS Monitor <#{args.MAIL_USERNAME}>"
+            from: "SAKS Monitor <#{ARGS.MAIL_USERNAME}>"
             to: CONF.mail_list.join(', ')
             subject: aSubject
             text: aBody
@@ -119,6 +104,46 @@ exports.monitor = (args, aCallback) ->
         return
 
     return self
+
+
+sanityCheck = (args, aConfpath) ->
+    if not args.MAIL_USERNAME
+        throw new Error("missing mail username argument")
+
+    if not args.MAIL_PASSWORD
+        throw new Error("missing mail password argument")
+
+    if not args.SMS_USERNAME
+        throw new Error("missing SMS username argument")
+
+    if not args.SMS_PASSWORD
+        throw new Error("missing SMS password argument")
+
+    try
+        conf = require aConfpath
+    catch readErr
+        msg = "syntax error in config file #{aConfpath} : #{readErr.message}"
+        throw new Error(msg)
+
+    if not conf.port or typeof conf.port isnt 'number'
+        throw new Error("invalid conf.port")
+
+    if not conf.hostname or typeof conf.hostname isnt 'string'
+        throw new Error("invalid conf.hostname")
+
+    if not conf.sms_address or parseInt(conf.sms_address) is NaN
+        throw new Error("invalid conf.sms_address")
+
+    if not Array.isArray(conf.mail_list)
+        throw new Error("invalid conf.mail_list")
+
+    if not Array.isArray(conf.sms_list)
+        throw new Error("invalid conf.sms_list")
+
+    if not conf.heartbeat_timeout or typeof conf.heartbeat_timeout isnt 'number'
+        conf.heartbeat_timeout = 1
+
+    return {args: args, conf: conf}
 
 
 if module is require.main
