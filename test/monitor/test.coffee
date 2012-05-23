@@ -48,20 +48,15 @@ describe 'mock functionality', ->
     gMailCreateTransport = MAIL.createTransport
     gSMSSession = SMS.Session
     gMonitor = null
-    gMailUsername = 'firechief@fireworksproject.com'
-    gMailPassword = 'foobar'
-    gFromEmail = "SAKS Monitor <#{gMailUsername}>"
+    gFromEmail = "SAKS Monitor <#{TESTARGV.mail_username}>"
     gToEmail = 'foo@example.com, bar@example.com'
-    gSMSUser = 'firechief'
-    gSMSPass = 'foobar'
-    gSMSAddress = '5555555555'
 
     startMonitor = (callback) ->
         args =
-            MAIL_USERNAME: gMailUsername
-            MAIL_PASSWORD: gMailPassword
-            SMS_USERNAME: gSMSUser
-            SMS_PASSWORD: gSMSPass
+            MAIL_USERNAME: TESTARGV.mail_username
+            MAIL_PASSWORD: TESTARGV.mail_password
+            SMS_USERNAME: TESTARGV.sms_username
+            SMS_PASSWORD: TESTARGV.sms_password
         gMonitor = MON.monitor args, (err, monitor) ->
             return callback(gMonitor)
         return
@@ -82,9 +77,9 @@ describe 'mock functionality', ->
         @expectCount(3)
 
         SMS.Session = (spec) ->
-            expect(spec.username).toBe(gSMSUser)
-            expect(spec.password).toBe(gSMSPass)
-            expect(spec.address).toBe(gSMSAddress)
+            expect(spec.username).toBe(TESTARGV.sms_username)
+            expect(spec.password).toBe(TESTARGV.sms_password)
+            expect(spec.address).toBe(TESTARGV.sms_sender)
             return
 
         startMonitor (monitor) ->
@@ -98,8 +93,8 @@ describe 'mock functionality', ->
         MAIL.createTransport = (type, opts) ->
             expect(type).toBe('SMTP')
             expect(opts.service).toBe('Gmail')
-            expect(opts.auth.user).toBe(gMailUsername)
-            expect(opts.auth.pass).toBe(gMailPassword)
+            expect(opts.auth.user).toBe(TESTARGV.mail_username)
+            expect(opts.auth.pass).toBe(TESTARGV.mail_password)
 
             transport = {}
             transport.close = (callback) ->

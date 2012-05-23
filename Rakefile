@@ -55,6 +55,18 @@ task :test => [:devsetup, :install] do
     system 'sudo bin/monitor/runtests'
 end
 
+desc "Run live Monitor tests"
+monitor_testlive_args = [
+    :mail_user,
+    :mail_pass,
+    :sms_user,
+    :sms_pass,
+    :sms_sender
+]
+task :testlive_monitor, monitor_testlive_args => [:devsetup, :install] do |task, args|
+    system "sudo bin/monitor/runtests #{args[:mail_user]} #{args[:mail_pass]} #{args[:sms_user]} #{args[:sms_pass]} #{args[:sms_sender]}"
+end
+
 task :clean do
     rm_rf 'node_modules'
     rm_rf 'dist'
