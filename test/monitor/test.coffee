@@ -150,11 +150,8 @@ describe 'mock functionality', ->
         failureMessage = "This is an error message"
 
         SMS.Session = (spec) ->
-            sendCounter = 0
-
             session = {}
             session.send = (target, message) ->
-                sendCounter += 1
                 expect(target).toBe('5555555555')
                 expect(message).toBe(failureMessage)
 
@@ -206,11 +203,8 @@ describe 'mock functionality', ->
         failureMessage = 'heartbeat timeout'
 
         SMS.Session = (spec) ->
-            sendCounter = 0
-
             session = {}
             session.send = (target, message) ->
-                sendCounter += 1
                 expect(target).toBe('5555555555')
                 expect(message).toBe(failureMessage)
 
@@ -252,6 +246,59 @@ describe 'mock functionality', ->
                 channel = connection.createChannel('heartbeat')
                 process.nextTick ->
                     channel.publish('ok')
+                    return
+                return
+            return
+        return
+
+
+    it 'should emit SMS and Email service errors', (done) ->
+        @expectCount(5)
+
+        SMS.Session = (spec) ->
+            session = {}
+            session.send = (target, message) ->
+                deferred = Q.defer()
+                serviceException =
+                    errorCode: 'SVC001'
+                    msg: "Unauthenticated"
+                requestError = {serviceException: serviceException}
+                deferred.resolve({code: 401, data: {requestError: requestError}})
+                return deferred.promise
+            return session
+
+        MAIL.createTransport = ->
+            transport = {}
+
+            transport.close = (callback) ->
+                return callback()
+
+            transport.sendMail = (opts, callback) ->
+                callback(new Error("Invalid User"))
+                return
+
+            return transport
+
+        startMonitor (monitor) ->
+            messageCount = 0
+            monitor.on 'error', (err) ->
+                messageCount += 1
+
+                if /^Error\ssending\semail/.test(err.message)
+                    expect(err.message).toBe("Error sending email notification: Invalid User")
+
+                if err.err
+                    expect(err.err.message).toBe('Unexpected response from SMS service')
+                    expect(err.err.code).toBe(401)
+
+                if messageCount is 3 then return done()
+                return
+
+            connection = TEL.connect 7272, 'localhost', ->
+                channel = connection.createChannel('failure')
+                process.nextTick ->
+                    msg = {stack: 'stack', message: 'message'}
+                    channel.publish(JSON.stringify(msg))
                     return
                 return
             return

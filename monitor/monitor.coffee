@@ -31,28 +31,6 @@ exports.monitor = (aArgs, aCallback) ->
 
     mTelegramServer = TEL.createServer()
 
-    mMailTransport = MAIL.createTransport('SMTP', {
-            service: 'Gmail'
-            auth: {user: ARGS.MAIL_USERNAME, pass: ARGS.MAIL_PASSWORD}
-        })
-
-    mSMSSession = new SMS.Session({
-        username: ARGS.SMS_USERNAME
-        password: ARGS.SMS_PASSWORD
-        address: CONF.sms_address
-    })
-
-    mClearHBTimer = do ->
-        timeout = null
-        clear = ->
-            if timeout isnt null then clearTimeout(timeout)
-            timeout = setTimeout(->
-                sendSMS('heartbeat timeout')
-                sendMail('TIMEOUT from webserver', 'heartbeat timeout')
-            , CONF.heartbeat_timeout * 1000)
-            return
-        return clear
-
 
     mTelegramServer.listen CONF.port, CONF.hostname, ->
         return aCallback(null, {telegramServer: mTelegramServer})
@@ -113,6 +91,31 @@ exports.monitor = (aArgs, aCallback) ->
                 self.emit 'error', err
                 return
         return
+
+
+    mMailTransport = MAIL.createTransport('SMTP', {
+            service: 'Gmail'
+            auth: {user: ARGS.MAIL_USERNAME, pass: ARGS.MAIL_PASSWORD}
+        })
+
+
+    mSMSSession = new SMS.Session({
+        username: ARGS.SMS_USERNAME
+        password: ARGS.SMS_PASSWORD
+        address: CONF.sms_address
+    })
+
+
+    mClearHBTimer = do ->
+        timeout = null
+        clear = ->
+            if timeout isnt null then clearTimeout(timeout)
+            timeout = setTimeout(->
+                sendSMS('heartbeat timeout')
+                sendMail('TIMEOUT from webserver', 'heartbeat timeout')
+            , CONF.heartbeat_timeout * 1000)
+            return
+        return clear
 
 
     self.close = (callback) ->
