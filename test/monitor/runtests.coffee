@@ -3,15 +3,18 @@ PATH = require 'path'
 
 TRM = require 'treadmill'
 
-LIVE = process.argv[2]
+LIVE_CONF = process.argv[2]
 
-if LIVE
-    global.TESTARGV =
-        mail_username: process.argv[2]
-        mail_password: process.argv[3]
-        sms_username: process.argv[4]
-        sms_password: process.argv[5]
-        sms_sender: process.argv[6]
+if LIVE_CONF
+    text = FS.readFileSync(LIVE_CONF, 'utf8')
+    try
+        {argv, conf} = JSON.parse(text)
+    catch jsonError
+        msg = "JSON parsing error in #{LIVE_CONF}"
+
+    global.TESTCONF = conf
+    global.TESTARGV = argv
+
 else
     global.TESTARGV =
         mail_username: 'firechief@fireworksproject.com'
@@ -21,7 +24,7 @@ else
         sms_sender: '5555555555'
 
 checkTestFile = (filename) ->
-    if LIVE then return /^live/.test(filename)
+    if LIVE_CONF then return /^live/.test(filename)
     return /^test/.test(filename)
 
 resolvePath = (filename) ->

@@ -1,14 +1,23 @@
 EventEmitter = require('events').EventEmitter
 
+Logger = require('bunyan')
 TEL = require 'telegram'
 MAIL = require 'nodemailer'
 SMS = require 'q-smsified'
+
+LOG = new Logger({
+    name: 'monitor'
+    streams: [
+        {level: 'info', stream: process.stdout}
+        {level: 'error', stream: process.stderr}
+    ]
+})
 
 CONFDIR = '/etc/saks-monitor'
 
 MAIL_USERNAME = process.argv[2]
 MAIL_PASSWORD = process.argv[3]
-SMS_USERNAME = process.argv[3]
+SMS_USERNAME = process.argv[4]
 SMS_PASSWORD = process.argv[5]
 
 exports.monitor = (aArgs, aCallback) ->
@@ -76,8 +85,8 @@ exports.monitor = (aArgs, aCallback) ->
 
         mMailTransport.sendMail opts, (err, res) ->
             if err
-                self.emit 'error', "Error sending email notification:"
-                self.emit 'error', (err.stack or err.toString())
+                err.message = "Error sending email notification: #{err.message}"
+                self.emit 'error', err
                 return
 
             self.emit 'log', "Email Message: #{res.message}"
@@ -87,13 +96,21 @@ exports.monitor = (aArgs, aCallback) ->
 
     sendSMS = (aBody) ->
         log = (res) ->
+            if res.code isnt 201
+                err =
+                    message: "Unexpected response from SMS service"
+                    code: res.code
+                    stack: res.data.requestError.serviceException
+                self.emit 'error', {err: err}
+                return
+
             self.emit 'log', "SMS Message: #{res.data.resourceURL}"
             return
 
         for target in CONF.sms_list
             mSMSSession.send(target, aBody).then(log).fail (err) ->
-                self.emit 'error', "Error sending SMS notification:"
-                self.emit 'error', (err.stack or err.toString())
+                err.message = "Error sending SMS notification: #{err.message}"
+                self.emit 'error', err
                 return
         return
 
@@ -156,8 +173,8 @@ if module is require.main
 
     monitor = exports.monitor args, (err, info) ->
         {address, port} = info.telegramServer.address()
-        console.log "telegram server running at #{address}:#{port}"
+        LOG.info "telegram server running at #{address}:#{port}"
         return
 
-    monitor.on 'error', (err) -> console.error err
-    monitor.on 'log', (msg) -> console.log msg
+    monitor.on 'error', (err) -> LOG.error(err)
+    monitor.on 'log', (msg) -> LOG.info(msg)
