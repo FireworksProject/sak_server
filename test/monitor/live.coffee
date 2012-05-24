@@ -113,7 +113,8 @@ describe 'live services', ->
 
 
     it 'should log SMS and Email notifications', (done) ->
-        @expectCount(3)
+        @expectCount(4)
+        start = 0
 
         whenRunning = (serverProc) ->
             gotSMSLog = 0
@@ -132,12 +133,16 @@ describe 'live services', ->
                     if gotMailLog <= 1
                         expect(line.msg.slice(0, 13)).toBe('Email Message')
 
-                if gotSMSLog is 2 and gotMailLog is 1 then return done()
+                if gotSMSLog is 2 and gotMailLog is 1
+                    timediff = new Date().getTime() - start
+                    expect(timediff > 18000).toBe(true)
+                    return done()
                 return
 
             connection = TEL.connect TESTCONF.port, TESTCONF.hostname, ->
                 channel = connection.createChannel('heartbeat')
                 channel.publish('ok')
+                start = new Date().getTime()
                 setTimeout(->
                     channel.publish('ok')
                 , 7000)

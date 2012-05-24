@@ -31,7 +31,6 @@ exports.monitor = (aArgs, aCallback) ->
 
     mTelegramServer = TEL.createServer()
 
-
     mTelegramServer.listen CONF.port, CONF.hostname, ->
         return aCallback(null, {telegramServer: mTelegramServer})
 
