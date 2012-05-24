@@ -17,7 +17,8 @@ describe 'executable', ->
         @expectCount(4)
 
         whenRunning = (serverProc) ->
-            expect(serverProc.stdoutBuffer).toBe("telegram server running at 127.0.0.1:7272\n")
+            line = JSON.parse(serverProc.stdoutBuffer)
+            expect(line.msg).toBe("telegram server running at 127.0.0.1:7272")
             expect(serverProc.stderrBuffer).toBe('')
 
             PROC.findProcess(gProcTitle).then (found) ->
@@ -158,7 +159,7 @@ describe 'mock functionality', ->
                 expect(message).toBe(failureMessage)
 
                 deferred = Q.defer()
-                deferred.resolve({data: {resourceURL: "http://foo"}})
+                deferred.resolve({code: 201, data: {resourceURL: "http://foo"}})
                 return deferred.promise
             return session
 
@@ -214,7 +215,7 @@ describe 'mock functionality', ->
                 expect(message).toBe(failureMessage)
 
                 deferred = Q.defer()
-                deferred.resolve({data: {resourceURL: "http://foo"}})
+                deferred.resolve({code: 201, data: {resourceURL: "http://foo"}})
                 return deferred.promise
             return session
 
